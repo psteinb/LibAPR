@@ -22,6 +22,13 @@
 
 #include "../../misc/APRTimer.hpp"
 
+// C++14 additional delete operators
+void operator delete(void * ptr, std::size_t) {
+       ::operator delete(ptr);
+}
+void operator delete[](void * ptr, std::size_t) {
+       ::operator delete(ptr);
+}
 
 template <typename T>
 class ArrayWrapper
