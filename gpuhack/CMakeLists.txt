@@ -26,17 +26,20 @@ endmacro(buildGPUTarget)
 macro(dynamicGPUTarget TARGET)
   if(APR_USE_CUDA)
 
-    CUDA_SELECT_NVCC_ARCH_FLAGS(ARCH_FLAGS 3.7+PTX)
-    list(APPEND CUDA_NVCC_FLAGS ${ARCH_FLAGS})
+    CUDA_SELECT_NVCC_ARCH_FLAGS(ARCH_FLAGS 3.7)
 
     add_executable(${TARGET} ${TARGET}.cu)
-target_link_libraries(${TARGET} ${HDF5_LIBRARIES} ${TIFF_LIBRARIES} ${APR_BUILD_LIBRARY})
+    target_link_libraries(${TARGET} ${HDF5_LIBRARIES} ${TIFF_LIBRARIES} ${APR_BUILD_LIBRARY})
+
+    string(REPLACE ";" " " CLEAN_ARCH_FLAGS "${ARCH_FLAGS}")
+    message("\n${CLEAN_ARCH_FLAGS}\n")
     set_target_properties(${TARGET} PROPERTIES
       CUDA_STANDARD 14
-      POSITION_INDEPENDENT_CODE True
+#      POSITION_INDEPENDENT_CODE ON
       CUDA_SEPARABLE_COMPILATION ON
-      COMPILE_FLAGS "-DAPR_USE_CUDA --expt-extended-lambda -arch=sm_37"
-      #LINKING_FLAGS "-rdc=true"
+      COMPILE_FLAGS "-DAPR_USE_CUDA --expt-extended-lambda -dc ${CLEAN_ARCH_FLAGS}"#  "
+ #     LINK_FLAGS "${CLEAN_ARCH_FLAGS}"
+      LINKER_LANGUAGE CUDA
       )
 
   else()
